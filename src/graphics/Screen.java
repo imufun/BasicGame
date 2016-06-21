@@ -1,13 +1,21 @@
 package graphics;
 
 import java.util.Iterator;
+import java.util.Random;
 
 public class Screen {
+	// private static final int MAP_SIZE_MASK = 0;
 	private int width, height;
 	public int[] pixles;
 
-	int xtime = 100;
-	int ytime = 50;
+	private Random random = new Random();
+
+	public int MAP_SIZE = 64;
+	public final int MAP_SIZE_MASK = MAP_SIZE - 1;
+	public int[] tiles = new int[MAP_SIZE * MAP_SIZE];
+
+	// int xtime = 100;
+	// int ytime = 50;
 
 	int counter = 50;
 
@@ -15,6 +23,12 @@ public class Screen {
 		this.width = width;
 		this.height = height;
 		pixles = new int[width * height];
+
+		for (int i = 0; i < MAP_SIZE * MAP_SIZE; i++) {
+			tiles[i] = random.nextInt(0xffffff);
+			//tiles[0]=0;
+		}
+
 	}
 
 	public void clear() {
@@ -24,20 +38,16 @@ public class Screen {
 		}
 	}
 
-	public void render() {
-		counter++;
-		if (counter % 100 == 0)
-			xtime--;
-		if (counter % 100 == 0)
-			ytime--;
-
+	public void render(int xOffset, int yOffset) {
 		for (int y = 0; y < height; y++) {
-			if (ytime <0 || ytime >= height)
-				break;
-			for (int x = 0; x < width; x++) {
-				if (xtime < 0 || xtime >= width)break;
-				pixles[xtime + ytime * width] = 0xff00ff;
+			int yy = y + yOffset;
+			for (int x = 0; x < width; x++) { 
+				int xx = x + xOffset;				 
+				int tileIndex = ((xx >> 4) & MAP_SIZE_MASK) + ((yy >> 4) & MAP_SIZE_MASK) * MAP_SIZE;
+				pixles[x + y * width] = tiles[tileIndex];
 			}
+			// }
 		}
 	}
+
 }

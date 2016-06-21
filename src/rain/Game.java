@@ -8,6 +8,7 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import javax.swing.JFrame;
+import javax.swing.border.TitledBorder;
 
 import graphics.Screen;
 
@@ -24,7 +25,7 @@ public class Game extends Canvas implements Runnable {
 	private boolean running = false;
 
 	public Screen screen;
-
+	public static String title = "Rain";
 	// raster graphics
 	private BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR);
 	private int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
@@ -55,22 +56,49 @@ public class Game extends Canvas implements Runnable {
 	public void run() {
 
 		// timer frame
-		//system time input 
+		// system time input
 		long lastTime = System.nanoTime();
+		long timer = System.currentTimeMillis();
 		final double ns = 100000000.0 / 60.0;
 		double delta = 0;
+		boolean c = false;
 
+		int frames = 0;
+		int updates = 0;
 		while (running) {
-			long now = System.nanoTime();//system time initialize here
-			System.out.println(lastTime + " " + now);
-			return;
-			// update();
-			// render();
+			long now = System.nanoTime();// system time initialize here
+			delta += (now - lastTime) / ns;
+			lastTime = now;
+
+			while (delta >= 1) {
+				update();
+				updates++;
+				delta--;
+
+			}
+			render();
+			frames++;
+
+			if (System.currentTimeMillis() - timer > 1000) {
+				timer += 1000;
+				//System.out.println(updates + "ups, " + frames + "fps");
+				frame.setTitle(title + " | " + updates + "ups, " + frames + "fps");
+				frames = 0;
+				updates = 0;
+			}
+			// c = true;
 		}
 		stop();
 	}
 
+	int x = 0;
+	int y = 0;
+
 	public void update() {
+		x++;
+		y++;
+
+		// y++;
 	}
 
 	public void render() {
@@ -80,7 +108,7 @@ public class Game extends Canvas implements Runnable {
 			return;
 		}
 		screen.clear();
-		screen.render();
+		screen.render(x, 0);
 		for (int i = 0; i < pixels.length; i++) {
 			pixels[i] = screen.pixles[i];
 		}
@@ -94,7 +122,7 @@ public class Game extends Canvas implements Runnable {
 	public static void main(String[] args) {
 		Game game = new Game();
 		game.frame.setResizable(false);
-		game.frame.setTitle("Rain");
+		game.frame.setTitle(Game.title);
 		game.frame.add(game);
 		game.frame.pack();
 		game.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
